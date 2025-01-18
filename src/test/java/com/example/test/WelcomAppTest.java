@@ -2,7 +2,6 @@ package com.example.test;
 
 import com.example.repository.WelcomeRepository;
 import com.example.service.WelcomeService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,9 +23,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.nio.charset.StandardCharsets;
+
 @ExtendWith({SpringExtension.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+//@Sql(scripts = "classpath:/resources/data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 class WelcomAppTest {
     private static Logger log = LoggerFactory.getLogger(WelcomAppTest.class);
 
@@ -35,7 +39,8 @@ class WelcomAppTest {
     private WelcomeService welcomeService;
     @Spy
     private WelcomeRepository welcomeRepository;
-
+    @Autowired
+    private ResourceLoader resourceLoader;
     private int port;
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -43,14 +48,13 @@ class WelcomAppTest {
     RestTemplate restTemplate;
 
     @BeforeEach
-    public void setUp() {
+    public void init() {
         this.setPort(8080);
         restTemplate = new RestTemplate();
         baseUrl = baseUrl + port;
         log.info(String.format("application started with base URL:%s and port:%s", baseUrl, port));
         log.info("Initializing DB..");
-        jdbcTemplate.execute("insert into Message(message_id, welcome,libelle,type) values(1,'Welcome', 'of the world of programming!!! ','Geeks')");
-        jdbcTemplate.execute("insert into Message(message_id, welcome,libelle,type) values(2,'WelcomeToEvent', 'You are selected to the contest!!! ','Geeks')");
+        executeSqlFile("data.sql");
         var totalRecords = jdbcTemplate.queryForObject("Select count(*) from Message", Integer.class);
         log.info(String.format("Total Records in DB:%s", totalRecords));
         mockMvc= MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
@@ -72,13 +76,17 @@ class WelcomAppTest {
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @AfterEach
-    void emptyData(){
-        var totalRecords = jdbcTemplate.queryForObject("Select count(*) from Message", Integer.class);
-        log.info(String.format("Total Records in DB:%s", totalRecords));
-        log.info("Deleting records from table.");
-        jdbcTemplate.execute("DELETE FROM Message");
+    public void executeSqlFile(String filename) {
+        try  {
+            Resource resource = resourceLoader.getResource("classpath:" + filename);
+            //lire le contenu du fichier
+            String sql = resource.getContentAsString(StandardCharsets.UTF_8);
+            jdbcTemplate.execute(sql.toString());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to execute SQL file", e);
+        }
     }
+
 
     public int getPort() {
         return port;
