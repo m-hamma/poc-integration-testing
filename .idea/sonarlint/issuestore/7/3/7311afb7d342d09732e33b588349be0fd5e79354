@@ -1,0 +1,14 @@
+
+a
+java:S5786<"Remove this 'public' modifier.(È«ÿĞ8ã²¶¥Ç2J$95e6de93-7fe8-4b3f-a1fd-5c8779ae8b0f
+a
+java:S5786"Remove this 'public' modifier.(ı‹í«8ä²¶¥Ç2J$ee3aa82a-7582-4e42-8b9c-3eccec0cd491
+a
+java:S34574"2nd argument is not used.(¦‹üºûÿÿÿÿ8ä²¶¥Ç2J$53c3cdaa-00ae-47c1-8013-76b54da3f2de
+ƒ	java:S125E"<This block of commented-out lines of code should be removed.(¢² ‚úÿÿÿÿ8¹‹§Ç2J$bf625b7f-34ce-485c-b340-ac156448fcf8
+
+java:S1128"<Remove this unused import 'org.junit.jupiter.api.AfterEach'.(ªÎµã8¹‹§Ç2J$f6cabb05-30c0-45be-9d68-ffe40f2133a5
+|
+java:S1128	"4Remove this unused import 'org.mockito.InjectMocks'.(Ó§óµşÿÿÿÿ8ÎÌÃ¥Ç2J$2ae1bdcc-d792-43d3-a55d-880304a52a46
+˜
+java:S1128"URemove this unused import 'org.springframework.boot.test.web.server.LocalServerPort'.(²Ä˜8ºıÎ¥Ç2J$f238592a-712e-44f2-8d72-92f969669b5c
