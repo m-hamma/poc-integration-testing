@@ -10,6 +10,9 @@ public class Message {
     @Column(name="message_id")
     private Integer messageId;
 
+    @Column(length = 100, name="welcome")
+    private String welcome;
+
     @Column(length = 100, name="libelle")
     private String libelle;
 
@@ -38,5 +41,13 @@ public class Message {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getWelcome() {
+        return welcome;
+    }
+
+    public void setWelcome(String welcome) {
+        this.welcome = welcome;
     }
 }

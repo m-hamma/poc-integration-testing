@@ -6,14 +6,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,7 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ExtendWith({SpringExtension.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-public class WelcomAppTest {
+class WelcomAppTest {
     private static Logger log = LoggerFactory.getLogger(WelcomAppTest.class);
 
     private MockMvc mockMvc;
@@ -49,29 +47,38 @@ public class WelcomAppTest {
         this.setPort(8080);
         restTemplate = new RestTemplate();
         baseUrl = baseUrl + port;
-        log.info(String.format("application started with base URL:{} and port:%s", baseUrl, port));
+        log.info(String.format("application started with base URL:%s and port:%s", baseUrl, port));
         log.info("Initializing DB..");
-        jdbcTemplate.execute("insert into Message(message_id, libelle,type) values(1,'Welcome, %s of the world of programming!!! ','Geeks')");
+        jdbcTemplate.execute("insert into Message(message_id, welcome,libelle,type) values(1,'Welcome', 'of the world of programming!!! ','Geeks')");
+        jdbcTemplate.execute("insert into Message(message_id, welcome,libelle,type) values(2,'WelcomeToEvent', 'You are selected to the contest!!! ','Geeks')");
         var totalRecords = jdbcTemplate.queryForObject("Select count(*) from Message", Integer.class);
         log.info(String.format("Total Records in DB:%s", totalRecords));
         mockMvc= MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
     }
     @Test
-    public void testWelcome () throws Exception{
-        this.mockMvc.perform(MockMvcRequestBuilders.get("/").param("name","Geeks"))
+    void testWelcome () throws Exception{
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/").param("nom","Geeks"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.model().attribute("welcome","Welcome, Geeks of the world of programming!!! "))
+                .andExpect(MockMvcResultMatchers.model().attribute("Welcome","Welcome, Geeks of the world of programming!!! "))
                 .andExpect(MockMvcResultMatchers.view().name("welcome-page"))
                 .andDo(MockMvcResultHandlers.print());
     }
+    @Test
+    void testWelcomeEvent () throws Exception{
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/event").param("participant","participant"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().attribute("WelcomeToEvent","WelcomeToEvent, participant You are selected to the contest!!! "))
+                .andExpect(MockMvcResultMatchers.view().name("event-page"))
+                .andDo(MockMvcResultHandlers.print());
+    }
 
-//    @AfterEach
-//    void emptyData(){
-//        var totalRecords = jdbcTemplate.queryForObject("Select count(*) from Message", Integer.class);
-//        log.info(String.format("Total Records in DB:%s", totalRecords));
-//        log.info("Deleting records from table.");
-//        jdbcTemplate.execute("DELETE FROM Message");
-//    }
+    @AfterEach
+    void emptyData(){
+        var totalRecords = jdbcTemplate.queryForObject("Select count(*) from Message", Integer.class);
+        log.info(String.format("Total Records in DB:%s", totalRecords));
+        log.info("Deleting records from table.");
+        jdbcTemplate.execute("DELETE FROM Message");
+    }
 
     public int getPort() {
         return port;

@@ -12,11 +12,18 @@ public class WelcomeService {
 
     private WelcomeRepository welcomeRepository;
 
-    public String afficherMessage(String type,Integer id) {
-        Optional messageOpt = welcomeRepository.findById(id);
-        Message message =(Message)messageOpt.get();
-        return !messageOpt.isEmpty()?String.format(message.getLibelle(),type):"";
+    public String afficherMessage(String type, Integer id) {
+        Optional<Message> messageOpt = welcomeRepository.findById(id);
+        Message message = messageOpt.orElse(null);
+        final StringBuilder sb = new StringBuilder();
+        if (message != null) {
+            sb.append(message.getWelcome());
+            sb.append(", %s ");
+            sb.append(message.getLibelle());
+        }
+        return String.format(sb.toString(), type);
     }
+
     @Autowired
     public void setWelcomeRepository(WelcomeRepository welcomeRepository) {
         this.welcomeRepository = welcomeRepository;
