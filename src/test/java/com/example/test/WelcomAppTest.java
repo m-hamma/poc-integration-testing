@@ -2,7 +2,6 @@ package com.example.test;
 
 import com.example.repository.WelcomeRepository;
 import com.example.service.WelcomeService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
@@ -33,22 +32,23 @@ class WelcomAppTest {
     private static Logger log = LoggerFactory.getLogger(WelcomAppTest.class);
 
     private MockMvc mockMvc;
-    @Autowired
     private WebApplicationContext webApplicationContext;
     @Autowired
     private WelcomeService welcomeService;
     @Spy
     private WelcomeRepository welcomeRepository;
-    @Autowired
+
     private ResourceLoader resourceLoader;
     private int port;
-    @Autowired
     JdbcTemplate jdbcTemplate;
     String baseUrl = "http://localhost:";
     RestTemplate restTemplate;
 
-    @BeforeEach
-    public void init() {
+    @Autowired
+    public WelcomAppTest(WebApplicationContext webApplicationContext, ResourceLoader resourceLoader, JdbcTemplate jdbcTemplate) {
+        this.resourceLoader = resourceLoader;
+        this.jdbcTemplate =jdbcTemplate;
+        this.webApplicationContext = webApplicationContext;
         this.setPort(8080);
         restTemplate = new RestTemplate();
         baseUrl = baseUrl + port;
